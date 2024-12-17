@@ -1,0 +1,65 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - TZ=Asia/Yekaterinburg
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  features:
+    build:
+      context: ./features
+      dockerfile: Dockerfile
+    container_name: features
+    restart: always
+    environment:
+      - TZ=Asia/Yekaterinburg
+    depends_on:
+      - rabbitmq
+
+  models:
+    build:
+      context: ./models
+      dockerfile: Dockerfile
+    container_name: models
+    restart: always
+    environment:
+      - TZ=Asia/Yekaterinburg
+    depends_on:
+      - rabbitmq
+      - features
+
+  metrics:
+    build:
+      context: ./metrics
+      dockerfile: Dockerfile
+    container_name: metrics
+    restart: always
+    environment:
+      - TZ=Asia/Yekaterinburg
+    volumes:
+      - ./logs:/usr/src/app/logs
+    depends_on:
+      - rabbitmq
+      - features
+      - models
+
+  plots:
+    build:
+      context: ./plots
+      dockerfile: Dockerfile
+    container_name: plots
+    restart: always
+    environment:
+      - TZ=Asia/Yekaterinburg
+    volumes:
+      - ./logs:/usr/src/app/logs
+    depends_on:
+      - rabbitmq
+      - features
+      - models
+      - metrics
