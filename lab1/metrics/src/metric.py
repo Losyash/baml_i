@@ -2,7 +2,7 @@ import json
 import pika
 
 try:
-  # Создаём подключение по адресу "rabbitmq":
+  # Создаём подключение по адресу "rabbitmq"
   connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
   channel = connection.channel()
 

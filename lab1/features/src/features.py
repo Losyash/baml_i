@@ -11,7 +11,7 @@ X, y = load_diabetes(return_X_y=True)
 # Создаём бесконечный цикл для отправки сообщений в очередь
 while True:
   try:
-    # Создаём подключение по адресу "rabbitmq":
+    # Создаём подключение по адресу "rabbitmq"
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
 
