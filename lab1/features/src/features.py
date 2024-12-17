@@ -37,8 +37,7 @@ while True:
     channel.basic_publish(exchange='', routing_key='features', body=json.dumps(msg_features))
     print(f'Сообщение с идентификатором {msg_id} с вектором признаков отправлено в очередь "features"')
 
-    # Закрываем подключение и ожидаем 10 секунд перед
-    # отправкой следующего сообщения
+    # Закрываем подключение и ожидаем 10 секунд перед отправкой следующего сообщения
     connection.close()
     time.sleep(10)
   except Exception as e:

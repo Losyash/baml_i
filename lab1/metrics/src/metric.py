@@ -2,16 +2,22 @@ import json
 import pika
 
 try:
+  # Создаём подключение по адресу "rabbitmq":
   connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
   channel = connection.channel()
 
+  # Объявляем очередь "features" и "y_pred" и "error"
   channel.queue_declare(queue='y_true')
   channel.queue_declare(queue='y_pred')
   channel.queue_declare(queue='error')
 
+  # Создаем словарь для хранения данных об истинном и предсказанном значениях
   data = {}
+
+  # Задаем путь к файлу с логами
   file_path = 'logs/metric_log.csv'
 
+  # Создаём функцию callback для обработки данных из очереди
   def callback(ch, method, properties, body):
     msg = json.loads(body)
 
@@ -36,15 +42,19 @@ try:
       with open(file_path, 'a') as file:
         file.write(line + '\n')
 
-      channel.basic_publish(exchange='', routing_key='error', body=json.dumps(error))
+      # Отправляем сообщение с вычисленной ошибкой в очередь "error"
+      # По сути, значение имеет не сама ошибка а факт появления новых данных для
+      # построения новой диаграммы сервисом plots
+      msg_error = { 'id': msg_id, 'body': error }
+      channel.basic_publish(exchange='', routing_key='error', body=json.dumps(msg_error))
       print(f'Сообщение с идентификатором {msg_id} с абсолютной ошибкой {error} отправлено в очередь "error"')
 
       del data[msg_id]
 
-  # Извлекаем сообщение из очереди y_true
+  # Извлекаем сообщение из очереди "y_true"
   channel.basic_consume(queue='y_true', on_message_callback=callback, auto_ack=True)
 
-  # Извлекаем сообщение из очереди y_pred
+  # Извлекаем сообщение из очереди "y_pred"
   channel.basic_consume(queue='y_pred', on_message_callback=callback, auto_ack=True)
 
   # Запускаем режим ожидания прихода сообщений

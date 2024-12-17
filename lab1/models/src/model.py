@@ -32,7 +32,7 @@ try:
     channel.basic_publish(exchange='', routing_key='y_pred', body=json.dumps(msg_y_pred))
     print(f'Сообщение с идентификатором {msg_id} с предсказанием {y_pred[0]} отправлено в очередь "y_pred"')
 
-  # Извлекаем сообщение из очереди features
+  # Извлекаем сообщение из очереди "features"
   # on_message_callback показывает, какую функцию вызвать при получении сообщения
   channel.basic_consume(queue='features', on_message_callback=callback, auto_ack=True)
 

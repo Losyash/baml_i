@@ -1,3 +1,4 @@
+import json
 import matplotlib.pylab as plt
 import pandas as pd
 import pika
@@ -10,15 +11,24 @@ try:
   # Объявляем очередь "error"
   channel.queue_declare(queue='error')
 
+  # Задаем путь к файлу с логами
   file_path = 'logs/metric_log.csv'
 
   # Создаём функцию callback для обработки данных из очереди
   def callback(ch, method, properties, body):
-    print()
+    msg = json.loads(body)
+
+    msg_id = msg.get('id')
+    msg_body = msg.get('body')
+
+    print(f'Сообщение с идентификатором {msg_id} с правильным ответом {msg_body} получено из очереди "error"')
+
     df = pd.read_csv(file_path, sep=',')
     data = df['absolute_error']
 
     plt.hist(data, bins=10, edgecolor='black')
+    plt.xlabel('Абсолютная ошибка')
+    plt.ylabel('Количество')
     plt.savefig('logs/error_distribution.png', bbox_inches='tight')
 
   # Извлекаем сообщение из очереди features
