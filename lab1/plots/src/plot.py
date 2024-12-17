@@ -39,5 +39,4 @@ try:
   print('...Ожидание сообщений, для выхода нажмите CTRL+C')
   channel.start_consuming()
 except Exception as e:
-  print(e)
   print('Не удалось подключиться к очереди', e)
